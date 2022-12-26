@@ -1,4 +1,3 @@
-import React, { ReactComponentElement } from "react";
 import { Sub } from "../types";
 
 interface Props {

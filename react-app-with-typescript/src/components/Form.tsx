@@ -1,25 +1,60 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { Sub } from "../types";
 
 interface FormState {
-    inputValues: Sub
+  inputValues: Sub;
 }
 
-const Form = () => {
-  const [inputValues, setInputValues] = useState<FormState["inputValues"]>({
-    nick: "",
-    avatar: "",
-    subMonths: 0,
-    description: "",
-  });
+interface FormProps {
+  onNewSub: (newSub: Sub) => void;
+}
 
-  const handleSubmit = () => {};
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>  )  => {
+const INITIAL_STATE = {
+  nick: "",
+  avatar: "",
+  subMonths: 0,
+  description: "",
+}
+
+const formReducer = (state, action) => {
+  switch (action.type) {
+    case "change_value": 
+      const {inputName, inputValue} = action.payload
+      return {
+        ...state,
+        [inputName]: inputValue
+      }
+    case "clear_form":
+      return INITIAL_STATE
+  }
+}
+
+
+const Form = ({onNewSub}: FormProps) => {
+
+  //const [inputValues, setInputValues] = useState<FormState["inputValues"]>(INITIAL_STATE);
+
+  const [inputValues, dispatch] = useReducer(formReducer, INITIAL_STATE)
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onNewSub(inputValues);   
+    handleClear()
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setInputValues({
       ...inputValues,
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleClear = () => {
+    setInputValues(INITIAL_STATE)
+  }
+
 
   return (
     <div>
@@ -51,7 +86,8 @@ const Form = () => {
           name="description"
           placeholder="description"
         />
-        <button>Save new Sub</button>
+        <button onClick={handleClear} type="button">Clear Form</button>
+        <button type="submit">Save new Sub</button>
       </form>
     </div>
   );
