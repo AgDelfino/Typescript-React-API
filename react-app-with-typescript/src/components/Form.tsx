@@ -1,60 +1,39 @@
-import React, { useReducer, useState } from "react";
+import useNewSubForm from "../Hooks/useNewSubForm";
 import { Sub } from "../types";
-
-interface FormState {
-  inputValues: Sub;
-}
 
 interface FormProps {
   onNewSub: (newSub: Sub) => void;
 }
 
-const INITIAL_STATE = {
-  nick: "",
-  avatar: "",
-  subMonths: 0,
-  description: "",
-}
+const Form = ({ onNewSub }: FormProps) => {
 
-const formReducer = (state, action) => {
-  switch (action.type) {
-    case "change_value": 
-      const {inputName, inputValue} = action.payload
-      return {
-        ...state,
-        [inputName]: inputValue
-      }
-    case "clear_form":
-      return INITIAL_STATE
-  }
-}
-
-
-const Form = ({onNewSub}: FormProps) => {
-
-  //const [inputValues, setInputValues] = useState<FormState["inputValues"]>(INITIAL_STATE);
-
-  const [inputValues, dispatch] = useReducer(formReducer, INITIAL_STATE)
+  const [inputValues, dispatch] = useNewSubForm()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onNewSub(inputValues);   
-    handleClear()
+    onNewSub(inputValues);
+    handleClear();
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setInputValues({
-      ...inputValues,
-      [e.target.name]: e.target.value,
+     const { name, value } = e.target;
+
+    dispatch({
+      type: "change_value",
+      payload: {
+        inputName: name,
+        inputValue: value,
+      },
     });
   };
 
   const handleClear = () => {
-    setInputValues(INITIAL_STATE)
-  }
-
+    dispatch({
+      type: "clear_form",
+    });
+  };
 
   return (
     <div>
@@ -86,7 +65,9 @@ const Form = ({onNewSub}: FormProps) => {
           name="description"
           placeholder="description"
         />
-        <button onClick={handleClear} type="button">Clear Form</button>
+        <button onClick={handleClear} type="button">
+          Clear Form
+        </button>
         <button type="submit">Save new Sub</button>
       </form>
     </div>
